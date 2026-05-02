@@ -1,0 +1,32 @@
+{
+  "name": "blogging",
+  "version": "1.0.0",
+  "description": "Lightweight full-stack blog with login, signup, and posts",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "playwright test",
+    "test:qa": "playwright test --config=playwright.qa.config.js",
+    "test:qa:headed": "playwright test --config=playwright.qa.config.js --headed",
+    "test:qa:report": "playwright show-report playwright-report-qa",
+    "demo": "playwright test tests/demo-video.spec.js",
+    "demo:headed": "playwright test tests/demo-video.spec.js --headed",
+    "demo:report": "playwright show-report",
+    "voiceover:build": "node scripts/build-voiceover.js",
+    "demo:voiceover": "npm run demo && npm run voiceover:build"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

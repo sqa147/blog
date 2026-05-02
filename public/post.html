@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post · MiniBlog</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <nav>
+    <a href="/" class="brand">MiniBlog</a>
+    <div class="links" id="nav-links"></div>
+  </nav>
+
+  <main>
+    <div id="error" class="error"></div>
+    <div id="post"></div>
+  </main>
+
+  <script src="/js/app.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    async function loadPost() {
+      const container = document.getElementById('post');
+      if (!id) {
+        container.innerHTML = '<div class="empty">Missing post id.</div>';
+        return;
+      }
+      try {
+        const p = await api(`/api/posts/${id}`);
+        const isOwner = Auth.user && Auth.user.id === p.author_id;
+        container.innerHTML = `
+          <article class="card">
+            <div class="row-between">
+              <h1>${escapeHtml(p.title)}</h1>
+              ${isOwner ? '<button id="delete-btn" class="danger">Delete</button>' : ''}
+            </div>
+            <div class="meta">by ${escapeHtml(p.author_username)} · ${formatDate(p.created_at)}</div>
+            <div class="post-content">${escapeHtml(p.content)}</div>
+          </article>
+          <p class="muted-link"><a href="/">← Back to all posts</a></p>
+        `;
+        if (isOwner) {
+          document.getElementById('delete-btn').addEventListener('click', async () => {
+            if (!confirm('Delete this post?')) return;
+            try {
+              await api(`/api/posts/${id}`, { method: 'DELETE', auth: true });
+              window.location.href = '/';
+            } catch (err) {
+              showError(err.message);
+            }
+          });
+        }
+      } catch (err) {
+        container.innerHTML = `<div class="empty">Failed to load post: ${escapeHtml(err.message)}</div>`;
+      }
+    }
+    loadPost();
+  </script>
+</body>
+</html>

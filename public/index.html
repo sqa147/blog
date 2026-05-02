@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MiniBlog</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <nav>
+    <a href="/" class="brand">MiniBlog</a>
+    <div class="links" id="nav-links"></div>
+  </nav>
+
+  <main>
+    <h1>Latest posts</h1>
+    <div id="posts"></div>
+  </main>
+
+  <script src="/js/app.js"></script>
+  <script>
+    async function loadPosts() {
+      const container = document.getElementById('posts');
+      try {
+        const posts = await api('/api/posts');
+        if (!posts.length) {
+          container.innerHTML = '<div class="empty">No posts yet. Be the first to write one!</div>';
+          return;
+        }
+        container.innerHTML = posts.map(p => `
+          <article class="card post-card">
+            <h2><a href="/post.html?id=${p.id}">${escapeHtml(p.title)}</a></h2>
+            <div class="meta">by ${escapeHtml(p.author_username)} · ${formatDate(p.created_at)}</div>
+            <div class="post-content">${escapeHtml(p.content.slice(0, 240))}${p.content.length > 240 ? '…' : ''}</div>
+          </article>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="empty">Failed to load posts: ${escapeHtml(err.message)}</div>`;
+      }
+    }
+    loadPosts();
+  </script>
+</body>
+</html>

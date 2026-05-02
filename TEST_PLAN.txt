@@ -1,0 +1,250 @@
+TEST PLAN
+=========
+
+1. PROJECT OVERVIEW
+-------------------
+The project is a lightweight blogging application called MiniBlog. It allows anonymous visitors to browse and read blog posts, and registered users to publish their own posts and delete the posts they have authored. The application is web based, accessed through a browser, and supports a single sign in session per user.
+
+The main users are:
+- Anonymous readers, who can browse the home feed and open any post.
+- Registered authors, who can sign up, log in, create posts, view posts, delete their own posts, and log out.
+
+The major modules are:
+- Home Feed (list of latest posts)
+- Sign Up
+- Log In
+- Log Out
+- Create Post
+- View Post
+- Delete Post (author only)
+- Navigation and authentication state
+
+2. TEST OBJECTIVE
+-----------------
+The objective of testing is to verify that all user facing functionality of MiniBlog works as expected for both anonymous and authenticated users. Testing will confirm that the sign up, login, post creation, post viewing, post deletion, and logout flows work correctly, that data is validated properly, that only authors can delete their own posts, and that the application handles invalid or unexpected input without breaking.
+
+3. SCOPE OF TESTING
+-------------------
+In Scope:
+- Home page and listing of posts
+- Sign up flow with validation
+- Log in flow with valid and invalid credentials
+- Auto login behaviour after sign up
+- Logout flow and session clearing
+- Create post flow for logged in users
+- Viewing a single post
+- Deleting a post as the author
+- Restriction of delete action to the author only
+- Navigation and dynamic menu based on login state
+- Form validation messages and error handling
+- Cross browser behaviour on supported desktop browsers
+
+Out of Scope:
+- Password reset and forgot password
+- Email verification
+- User profile pages and editing of user details
+- Editing existing posts
+- Commenting, liking, sharing, or following
+- Search, tags, categories, or pagination
+- Admin or moderation features
+- Mobile native apps
+- Push, SMS, or email notifications
+- Multi language support
+- Anything that is not visible in the provided artifacts
+
+4. TEST APPROACH
+----------------
+Testing will be a combination of manual and automated testing. Manual testing will cover exploratory checks, usability observations, and visual review. Automated testing will be used for regression coverage and for the main end to end user journey.
+
+The approach will include:
+- Manual Testing for exploratory and usability verification
+- Functional Testing for each module
+- UI Testing for layout, navigation, and form behaviour
+- API Testing for the backend endpoints used by the frontend
+- Smoke Testing on every new build to confirm core flows
+- Regression Testing before each release to confirm nothing is broken
+- Automation Testing for the main user journey to allow fast repeat runs
+
+A risk based approach will be followed, so authentication, authorization, and data integrity are tested first, and cosmetic issues are tested last.
+
+5. TYPES OF TESTING
+-------------------
+- Functional Testing to verify each feature behaves as intended.
+- UI Testing to confirm forms, buttons, navigation, and error messages display correctly.
+- API Testing to verify request and response behaviour, status codes, and validation.
+- Integration Testing to verify that the user interface, backend, and data layer work together correctly.
+- Smoke Testing to confirm that the build is stable enough for full testing.
+- Regression Testing to confirm that fixes and new changes do not break existing features.
+- Negative Testing to verify behaviour with invalid, empty, or malicious input.
+- Boundary Testing to verify minimum and maximum lengths for fields such as username, password, title, and content.
+- Cross Browser Testing on the latest Chrome, Firefox, and Safari, and on common desktop resolutions.
+- Performance Testing is optional and will be performed only if confirmed in scope.
+- Security Testing is optional and recommended for authentication, session handling, and input validation.
+
+6. TEST ENVIRONMENT
+-------------------
+Testing Environment:
+- A stable QA environment that mirrors the production setup
+- Local development environment for early checks
+- Staging environment for final regression and sign off
+
+Browsers and Devices:
+- Latest versions of Google Chrome, Mozilla Firefox, and Safari on desktop
+- Common desktop resolutions, primary target 1280 by 800 and 1920 by 1080
+- Tablet view as a basic responsive check
+
+Tools Required:
+- Browser developer tools for inspection and debugging
+- A REST client for API verification
+- A test management tool for tracking scenarios and runs
+- A bug tracking tool for defect management
+- An automation framework for the regression suite
+
+Test Data Requirements:
+- A clean database state at the start of each major test cycle
+- Seeded users for login based scenarios
+- Sample posts for read and listing scenarios
+
+7. TEST DATA
+------------
+The following types of data will be required:
+
+Valid Data:
+- Realistic usernames, emails, and passwords that meet the validation rules
+- Posts with normal text content of varying lengths
+
+Invalid Data:
+- Empty fields, missing fields, and incorrect formats such as invalid emails
+- Passwords shorter than the minimum allowed length
+- Duplicate usernames and emails
+
+Boundary Data:
+- Username at minimum and maximum allowed length
+- Password at exactly the minimum length and at very long lengths
+- Post title and content at minimum, normal, and maximum allowed sizes
+- Very large content close to the request size limit
+
+User Roles:
+- Anonymous visitor
+- Authenticated author who owns a post
+- Authenticated author who does not own a particular post
+
+Sample Records:
+- A small set of pre created users
+- A small set of pre created posts authored by different users to test ownership rules
+
+8. ENTRY CRITERIA
+-----------------
+Testing will start when the following are in place:
+- A stable build is deployed to the QA environment
+- The application starts successfully without errors
+- Smoke test of the main user journey passes on the new build
+- Test environment, test data, and required tools are ready
+- Required documentation, designs, or acceptance criteria are available
+- All blocking defects from the previous cycle are resolved
+
+9. EXIT CRITERIA
+----------------
+Testing will be considered complete when the following are met:
+- All planned test scenarios have been executed
+- No open defects of Blocker or Critical severity remain
+- All High priority defects are either fixed or formally accepted
+- The automated regression suite passes consistently on the final build
+- Cross browser checks have been completed on the agreed browsers
+- The test summary report is reviewed and signed off by the project stakeholders
+
+10. DEFECT MANAGEMENT
+---------------------
+Bugs will be reported in the agreed bug tracking tool. Each defect will include a clear title, steps to reproduce, expected result, actual result, environment details, severity, priority, and supporting evidence such as screenshots, logs, or recordings.
+
+Severity Levels:
+- Blocker: a core flow is unusable or data is lost
+- Critical: a major feature is broken with no workaround
+- Major: a feature is broken but a workaround exists
+- Minor: small functional or visual issues with limited impact
+
+Priority Levels:
+- High: must be fixed before the next release
+- Medium: should be fixed in the current release
+- Low: can be fixed in a later release
+
+Retesting Process:
+- A fixed defect will be retested in the environment where it was found
+- If the fix is verified, the defect will move to a verified state and be closed
+- If the issue still occurs, the defect will be reopened with updated evidence
+
+Bug Closure Process:
+- A defect is closed only after QA verification on the latest build
+- Closed defects will be revisited in the next regression cycle to confirm no regressions
+
+11. ROLES AND RESPONSIBILITIES
+------------------------------
+QA Team:
+- Prepare the test plan, test scenarios, and test data
+- Execute manual and automated tests
+- Report and track defects
+- Perform regression and smoke testing
+- Provide test status updates and the final test summary report
+
+Developers:
+- Provide stable builds for testing
+- Fix reported defects within the agreed priority
+- Support QA during reproduction and triage
+- Perform unit testing before handing the build to QA
+
+Project Manager:
+- Define release scope, priorities, and timelines
+- Resolve blockers and coordinate between teams
+- Approve the test plan and final sign off
+
+Stakeholders and Product Owner:
+- Provide clarity on requirements and acceptance criteria
+- Participate in user acceptance testing
+- Provide final approval for release
+
+12. RISKS AND MITIGATION
+------------------------
+Risk: Requirements are partly inferred from the application itself, which may differ from business expectations.
+Mitigation: Confirm the expected behaviour with the product owner before final sign off.
+
+Risk: Server side validation may be lighter than client side validation, which could let invalid data enter through direct API calls.
+Mitigation: Include negative API tests that bypass the user interface to confirm validation on the server.
+
+Risk: Session tokens are stored on the client, which makes them sensitive to any future content rendering issues.
+Mitigation: Cover input rendering and error message handling with explicit negative scenarios.
+
+Risk: There is no visible rate limiting on the login or sign up actions.
+Mitigation: Recommend rate limiting and include basic abuse scenarios in the security checks.
+
+Risk: A single shared data store is used, so any data corruption affects all users.
+Mitigation: Define a backup and restore procedure and include data integrity checks in regression runs.
+
+Risk: Limited documentation may cause misunderstanding of expected behaviour.
+Mitigation: Maintain a living list of assumptions and confirm each one with the product owner.
+
+Risk: Small QA capacity may slow down regression coverage as the product grows.
+Mitigation: Build and maintain an automated regression suite for the main user journey.
+
+13. DELIVERABLES
+----------------
+- Test Plan
+- Test Scenarios
+- Test Cases
+- Test Data Sheet
+- Bug Reports
+- Test Execution Report
+- Test Summary Report
+- Automation Scripts for the main user journey
+- Regression Run Reports
+
+14. CLARIFICATIONS REQUIRED
+---------------------------
+- Is mobile browser support a target, or is the application desktop only?
+- Are performance testing and security testing required for this release?
+- Which environments will be available for QA, and what is the deployment cadence?
+- Which bug tracking tool and test management tool will be used?
+- Is accessibility a formal requirement for this release, and to what standard?
+- Is there a planned production environment, and what is the expected user volume?
+- Are administrative or moderation features planned in a future release?
+- Is email functionality such as verification and password reset planned soon?
+- Is there a defined data retention or backup policy that QA must validate?

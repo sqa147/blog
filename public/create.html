@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Post · MiniBlog</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <nav>
+    <a href="/" class="brand">MiniBlog</a>
+    <div class="links" id="nav-links"></div>
+  </nav>
+
+  <main>
+    <div class="card">
+      <h1>Write a new post</h1>
+      <div id="error" class="error"></div>
+      <form id="post-form">
+        <label for="title">Title</label>
+        <input type="text" id="title" required maxlength="200" />
+
+        <label for="content">Content</label>
+        <textarea id="content" required></textarea>
+
+        <button type="submit" class="primary">Publish</button>
+      </form>
+    </div>
+  </main>
+
+  <script src="/js/app.js"></script>
+  <script>
+    if (!Auth.isLoggedIn()) window.location.href = '/login.html';
+
+    document.getElementById('post-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+      const title = document.getElementById('title').value.trim();
+      const content = document.getElementById('content').value.trim();
+      try {
+        const post = await api('/api/posts', {
+          method: 'POST',
+          auth: true,
+          body: { title, content },
+        });
+        window.location.href = `/post.html?id=${post.id}`;
+      } catch (err) {
+        showError(err.message);
+        if (/token/i.test(err.message)) {
+          Auth.clear();
+          setTimeout(() => window.location.href = '/login.html', 1200);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,16 +1,22 @@
 const Auth = {
-  get token() { return localStorage.getItem('token'); },
+  get token() { return localStorage.getItem('token') || sessionStorage.getItem('token'); },
   get user() {
-    const raw = localStorage.getItem('user');
+    const raw = localStorage.getItem('user') || sessionStorage.getItem('user');
     return raw ? JSON.parse(raw) : null;
   },
-  set(token, user) {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
+  set(token, user, remember = true) {
+    const store = remember ? localStorage : sessionStorage;
+    const other = remember ? sessionStorage : localStorage;
+    store.setItem('token', token);
+    store.setItem('user', JSON.stringify(user));
+    other.removeItem('token');
+    other.removeItem('user');
   },
   clear() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
   },
   isLoggedIn() { return !!this.token; },
 };

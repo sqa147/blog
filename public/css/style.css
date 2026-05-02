@@ -158,3 +158,19 @@ button.danger:hover { background: var(--danger); color: white; }
 
 .muted-link { color: var(--muted); font-size: 0.9rem; }
 .muted-link a { color: var(--accent); }
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.checkbox-row input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+.checkbox-row label {
+  margin: 0;
+  font-weight: 400;
+  cursor: pointer;
+}

@@ -23,11 +23,6 @@
         <label for="password">Password</label>
         <input type="password" id="password" required />
 
-        <div class="checkbox-row">
-          <input type="checkbox" id="remember" />
-          <label for="remember">Remember me</label>
-        </div>
-
         <button type="submit" class="primary">Log in</button>
       </form>
       <p class="muted-link">Don't have an account? <a href="/signup.html">Sign up</a></p>
@@ -43,13 +38,12 @@
       clearError();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      const remember = document.getElementById('remember').checked;
       try {
         const { token, user } = await api('/api/auth/login', {
           method: 'POST',
           body: { email, password },
         });
-        Auth.set(token, user, remember);
+        Auth.set(token, user);
         window.location.href = '/';
       } catch (err) {
         showError(err.message);

@@ -9,7 +9,7 @@ const { users, ts } = require('../data/testData');
 const { apiSignup, ensureSignedIn } = require('../helpers/auth');
 
 test.describe('M2 Sign Up', () => {
-  test('TC-SUP-01: User registers a new account with valid details', async ({ page }) => {
+  test('TC-SUP-01: User registers a new account with valid details @smoke', async ({ page }) => {
     const u = users.primary();
     const signup = new SignupPage(page);
     const nav = new NavBar(page);
@@ -32,7 +32,7 @@ test.describe('M2 Sign Up', () => {
     });
   });
 
-  test('TC-SUP-02: Sign Up form blocks submission when no fields are filled', async ({ page }) => {
+  test('TC-SUP-02: Sign Up form blocks submission when no fields are filled @regression', async ({ page }) => {
     const signup = new SignupPage(page);
 
     await test.step('Click Sign up without filling any field', async () => {
@@ -48,14 +48,14 @@ test.describe('M2 Sign Up', () => {
     });
   });
 
-  test('TC-SUP-03: Validation message shown when required fields are missing', async ({ request }) => {
+  test('TC-SUP-03: Validation message shown when required fields are missing @regression', async ({ request }) => {
     console.log('[TC-SUP-03] empty body to signup');
     const res = await request.post('/api/auth/signup', { data: {} });
     expect(res.status()).toBe(400);
     expect((await res.json()).error).toBe('username, email and password are required');
   });
 
-  test('TC-SUP-04: Password with exactly six characters is accepted', async ({ page }) => {
+  test('TC-SUP-04: Password with exactly six characters is accepted @regression', async ({ page }) => {
     const u = users.fatima(); // password: abc123
     const signup = new SignupPage(page);
     const nav = new NavBar(page);
@@ -72,7 +72,7 @@ test.describe('M2 Sign Up', () => {
     });
   });
 
-  test('TC-SUP-05: Password shorter than six characters is rejected', async ({ page }) => {
+  test('TC-SUP-05: Password shorter than six characters is rejected @regression', async ({ page }) => {
     const u = users.fatima();
     u.password = 'Ali@1'; // 5 chars
     const signup = new SignupPage(page);
@@ -91,7 +91,7 @@ test.describe('M2 Sign Up', () => {
     });
   });
 
-  test('TC-SUP-06: Username shorter than three characters is not accepted', async ({ page }) => {
+  test('TC-SUP-06: Username shorter than three characters is not accepted @regression', async ({ page }) => {
     const u = users.primary();
     u.username = 'ab';
     const signup = new SignupPage(page);
@@ -109,7 +109,7 @@ test.describe('M2 Sign Up', () => {
     });
   });
 
-  test('TC-SUP-07: Username field stops accepting input after thirty characters', async ({ page }) => {
+  test('TC-SUP-07: Username field stops accepting input after thirty characters @regression', async ({ page }) => {
     const signup = new SignupPage(page);
     await signup.goto();
 
@@ -126,7 +126,7 @@ test.describe('M2 Sign Up', () => {
     });
   });
 
-  test('TC-SUP-08: Sign up rejected when the email is already registered', async ({ page, request }) => {
+  test('TC-SUP-08: Sign up rejected when the email is already registered @regression', async ({ page, request }) => {
     const seed = users.primary();
     await apiSignup(request, seed);
     const dupe = { ...seed, username: `${seed.username}.x`.slice(0, 30) };
@@ -144,7 +144,7 @@ test.describe('M2 Sign Up', () => {
     });
   });
 
-  test('TC-SUP-09: Sign up rejected when the username is already registered', async ({ page, request }) => {
+  test('TC-SUP-09: Sign up rejected when the username is already registered @regression', async ({ page, request }) => {
     const seed = users.primary();
     await apiSignup(request, seed);
     const dupe = { ...seed, email: `new.${ts()}@miniblog.test` };
@@ -161,7 +161,7 @@ test.describe('M2 Sign Up', () => {
     });
   });
 
-  test('TC-SUP-10: Username and email saved without leading or trailing spaces', async ({ page }) => {
+  test('TC-SUP-10: Username and email saved without leading or trailing spaces @regression', async ({ page }) => {
     const stamp = ts();
     const padded = {
       username: `  bilal.dev.${stamp}  `,
@@ -184,7 +184,7 @@ test.describe('M2 Sign Up', () => {
     });
   });
 
-  test('TC-SUP-11: Sign up does not accept an invalid email format', async ({ page }) => {
+  test('TC-SUP-11: Sign up does not accept an invalid email format @regression', async ({ page }) => {
     const u = users.primary();
     u.email = 'ali.khan.gmail.com'; // no @
     const signup = new SignupPage(page);
@@ -202,7 +202,7 @@ test.describe('M2 Sign Up', () => {
     });
   });
 
-  test('TC-SUP-12: Logged-in user is redirected away from the Sign Up page', async ({ page, request }) => {
+  test('TC-SUP-12: Logged-in user is redirected away from the Sign Up page @regression', async ({ page, request }) => {
     await ensureSignedIn(page, request, users.primary());
 
     await test.step('Open Sign Up while logged in', async () => {
@@ -216,7 +216,7 @@ test.describe('M2 Sign Up', () => {
     });
   });
 
-  test('TC-SUP-13: User remains logged in after refreshing the page', async ({ page }) => {
+  test('TC-SUP-13: User remains logged in after refreshing the page @regression', async ({ page }) => {
     const u = users.primary();
     const signup = new SignupPage(page);
     const nav = new NavBar(page);
@@ -235,7 +235,7 @@ test.describe('M2 Sign Up', () => {
     });
   });
 
-  test('TC-SUP-14: "Already have an account? Log in" link opens the Login page', async ({ page }) => {
+  test('TC-SUP-14: "Already have an account? Log in" link opens the Login page @regression', async ({ page }) => {
     const signup = new SignupPage(page);
     const login = new LoginPage(page);
     await signup.goto();

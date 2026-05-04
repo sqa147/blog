@@ -78,6 +78,118 @@ async function installHeadingBanner(page, text, accent) {
   }, { text, accent });
 }
 
+test.describe('MiniBlog · Comments · before / after', () => {
+  test('before — old post detail (no comments)', async ({ page, baseURL }) => {
+    test.setTimeout(180_000);
+    await setupDemoOverlay(page);
+    await installHeadingBanner(page, 'BEFORE — Post detail with no comments', '#6b7280');
+
+    // Mimic pre-PR UI: hide the new comments section so the page looks the way
+    // it did before this change.
+    await page.addInitScript(() => {
+      const css = `#comments-section { display: none !important; }`;
+      const apply = () => {
+        if (document.getElementById('__demo-hide-comments')) return;
+        const s = document.createElement('style');
+        s.id = '__demo-hide-comments';
+        s.textContent = css;
+        document.head.appendChild(s);
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', apply, { once: true });
+      } else {
+        apply();
+      }
+    });
+
+    const user = uniqueUser('before_c');
+    await preCreateUser(baseURL, user);
+
+    // Sign in via API + create a post for a stable demo target.
+    const ctx = await request.newContext({ baseURL });
+    const loginRes = await ctx.post('/api/auth/login', {
+      data: { email: user.email, password: user.password },
+    });
+    const { token, user: u } = await loginRes.json();
+    const postRes = await ctx.post('/api/posts', {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { title: 'Welcome to MiniBlog', content: 'A short demo post.' },
+    });
+    const post = await postRes.json();
+    await ctx.dispose();
+
+    await page.addInitScript(({ t, u }) => {
+      window.localStorage.setItem('token', t);
+      window.localStorage.setItem('user', JSON.stringify(u));
+    }, { t: token, u });
+
+    await page.goto(`/post.html?id=${post.id}`);
+    await expect(page.locator('#post h1')).toHaveText('Welcome to MiniBlog');
+    await showDemoTitle(page, 'Open a post — no way to comment');
+    await waitForDemo(page, 2200);
+
+    await showDemoTitle(page, 'Page ends at the article — no comments area');
+    await waitForDemo(page, 2200);
+
+    await hideDemoTitle(page);
+  });
+
+  test('after — new post detail (with comments)', async ({ page, baseURL }) => {
+    test.setTimeout(180_000);
+    await setupDemoOverlay(page);
+    await installHeadingBanner(page, 'AFTER — Post detail with comments', '#2563eb');
+
+    const user = uniqueUser('after_c');
+    await preCreateUser(baseURL, user);
+
+    const ctx = await request.newContext({ baseURL });
+    const loginRes = await ctx.post('/api/auth/login', {
+      data: { email: user.email, password: user.password },
+    });
+    const { token, user: u } = await loginRes.json();
+    const postRes = await ctx.post('/api/posts', {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { title: 'Welcome to MiniBlog', content: 'A short demo post.' },
+    });
+    const post = await postRes.json();
+    await ctx.dispose();
+
+    await page.addInitScript(({ t, u }) => {
+      window.localStorage.setItem('token', t);
+      window.localStorage.setItem('user', JSON.stringify(u));
+    }, { t: token, u });
+
+    await page.goto(`/post.html?id=${post.id}`);
+    await expect(page.locator('#post h1')).toHaveText('Welcome to MiniBlog');
+    await showDemoTitle(page, 'Open a post — comments section visible');
+    await waitForDemo(page, 1600);
+
+    const section = page.locator('#comments-section');
+    await highlightElement(page, section);
+    await showDemoTitle(page, 'New: Comments section under every post');
+    await waitForDemo(page, 1500);
+    await clearHighlight(page);
+
+    const textarea = page.locator('#comment-content');
+    await demoFill(page, textarea, 'Great post! Thanks for sharing.', { title: 'Write a comment' });
+
+    const submit = page.locator('#comment-form button[type="submit"]');
+    await demoClick(page, submit, { title: 'Post comment' });
+
+    await expect(page.locator('#comments-heading')).toHaveText('Comments (1)');
+    await showDemoTitle(page, 'Comment posted — counter updates to (1)');
+    await waitForDemo(page, 2000);
+
+    const card = page.locator('#comments-list .comment-card').first();
+    await highlightElement(page, card.locator('.comment-delete'));
+    await showDemoTitle(page, 'Author can delete their own comment');
+    await waitForDemo(page, 1500);
+    await clearHighlight(page);
+
+    await hideDemoTitle(page);
+  });
+});
+
 test.describe('MiniBlog · Remember me · before / after', () => {
   test('before — old login (no Remember me)', async ({ page, baseURL }) => {
     test.setTimeout(180_000);

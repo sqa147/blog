@@ -23,7 +23,7 @@ async function readTokenStorage(page) {
 }
 
 test.describe('M3 Login', () => {
-  test('TC-LGN-01: User logs in with correct email and password', async ({ page, request }) => {
+  test('TC-LGN-01: User logs in with correct email and password @smoke', async ({ page, request }) => {
     const u = users.primary();
     await apiSignup(request, u);
     const login = new LoginPage(page);
@@ -43,7 +43,7 @@ test.describe('M3 Login', () => {
     });
   });
 
-  test('TC-LGN-02: Login form blocks submission when no fields are filled', async ({ page }) => {
+  test('TC-LGN-02: Login form blocks submission when no fields are filled @regression', async ({ page }) => {
     const login = new LoginPage(page);
     await login.goto();
 
@@ -59,14 +59,14 @@ test.describe('M3 Login', () => {
     });
   });
 
-  test('TC-LGN-03: Validation message shown when required fields are missing', async ({ request }) => {
+  test('TC-LGN-03: Validation message shown when required fields are missing @regression', async ({ request }) => {
     console.log('[TC-LGN-03] empty body to login');
     const res = await request.post('/api/auth/login', { data: {} });
     expect(res.status()).toBe(400);
     expect((await res.json()).error).toBe('email and password are required');
   });
 
-  test('TC-LGN-04: Login is rejected when the password is incorrect', async ({ page, request }) => {
+  test('TC-LGN-04: Login is rejected when the password is incorrect @regression', async ({ page, request }) => {
     const u = users.primary();
     await apiSignup(request, u);
     const login = new LoginPage(page);
@@ -83,7 +83,7 @@ test.describe('M3 Login', () => {
     });
   });
 
-  test('TC-LGN-05: Login is rejected when the email is not registered', async ({ page }) => {
+  test('TC-LGN-05: Login is rejected when the email is not registered @regression', async ({ page }) => {
     const login = new LoginPage(page);
 
     await test.step('Submit with an unregistered email', async () => {
@@ -97,7 +97,7 @@ test.describe('M3 Login', () => {
     });
   });
 
-  test('TC-LGN-06: Login fails when the email casing does not match', async ({ page, request }) => {
+  test('TC-LGN-06: Login fails when the email casing does not match @regression', async ({ page, request }) => {
     const u = users.primary();
     await apiSignup(request, u);
     const login = new LoginPage(page);
@@ -113,7 +113,7 @@ test.describe('M3 Login', () => {
     });
   });
 
-  test('TC-LGN-07: Email is accepted even with extra spaces around it', async ({ page, request }) => {
+  test('TC-LGN-07: Email is accepted even with extra spaces around it @regression', async ({ page, request }) => {
     const u = users.primary();
     await apiSignup(request, u);
     const login = new LoginPage(page);
@@ -131,7 +131,7 @@ test.describe('M3 Login', () => {
     });
   });
 
-  test('TC-LGN-08: User remains logged in after refreshing the page', async ({ page, request }) => {
+  test('TC-LGN-08: User remains logged in after refreshing the page @regression', async ({ page, request }) => {
     const u = users.primary();
     await apiSignup(request, u);
     const login = new LoginPage(page);
@@ -151,7 +151,7 @@ test.describe('M3 Login', () => {
     });
   });
 
-  test('TC-LGN-09: Logged-in user is redirected away from the Login page', async ({ page, request }) => {
+  test('TC-LGN-09: Logged-in user is redirected away from the Login page @regression', async ({ page, request }) => {
     await ensureSignedIn(page, request, users.primary());
 
     await test.step('Open Login while logged in', async () => {
@@ -165,7 +165,7 @@ test.describe('M3 Login', () => {
     });
   });
 
-  test('TC-LGN-10: "Don\'t have an account? Sign up" link opens the Sign Up page', async ({ page }) => {
+  test('TC-LGN-10: "Don\'t have an account? Sign up" link opens the Sign Up page @regression', async ({ page }) => {
     const login = new LoginPage(page);
     const signup = new SignupPage(page);
     await login.goto();
@@ -184,7 +184,7 @@ test.describe('M3 Login', () => {
   // ── Remember me (PR de4575a) ─────────────────────────────────────────
   // UI presence/state, client-side storage tier, JWT TTL on the backend,
   // and credential validation regression.
-  test('TC-LGN-11: Remember me checkbox is visible on the Login page', async ({ page }) => {
+  test('TC-LGN-11: Remember me checkbox is visible on the Login page @smoke', async ({ page }) => {
     const login = new LoginPage(page);
     await login.goto();
 
@@ -192,14 +192,14 @@ test.describe('M3 Login', () => {
     await expect(login.rememberMeRow).toContainText('Remember me');
   });
 
-  test('TC-LGN-12: Remember me checkbox is unchecked by default', async ({ page }) => {
+  test('TC-LGN-12: Remember me checkbox is unchecked by default @regression', async ({ page }) => {
     const login = new LoginPage(page);
     await login.goto();
 
     await expect(login.rememberMe).not.toBeChecked();
   });
 
-  test('TC-LGN-13: Clicking the row toggles the Remember me checkbox via its <label>', async ({ page }) => {
+  test('TC-LGN-13: Clicking the row toggles the Remember me checkbox via its <label> @regression', async ({ page }) => {
     const login = new LoginPage(page);
     await login.goto();
 
@@ -209,7 +209,7 @@ test.describe('M3 Login', () => {
     await expect(login.rememberMe).not.toBeChecked();
   });
 
-  test('TC-LGN-14: Login WITHOUT Remember me stores token in sessionStorage only', async ({
+  test('TC-LGN-14: Login WITHOUT Remember me stores token in sessionStorage only @smoke', async ({
     page,
     request,
   }) => {
@@ -230,7 +230,7 @@ test.describe('M3 Login', () => {
     expect(s.localUser).toBeNull();
   });
 
-  test('TC-LGN-15: Login WITH Remember me stores token in localStorage only', async ({
+  test('TC-LGN-15: Login WITH Remember me stores token in localStorage only @smoke', async ({
     page,
     request,
   }) => {
@@ -251,7 +251,7 @@ test.describe('M3 Login', () => {
     expect(s.sessionUser).toBeNull();
   });
 
-  test('TC-LGN-16: A subsequent Remember-me login overwrites a prior session login', async ({
+  test('TC-LGN-16: A subsequent Remember-me login overwrites a prior session login @regression', async ({
     page,
     request,
   }) => {
@@ -278,7 +278,7 @@ test.describe('M3 Login', () => {
     expect(s.session).toBeNull();
   });
 
-  test('TC-LGN-17: Logout clears the token from both storage tiers', async ({
+  test('TC-LGN-17: Logout clears the token from both storage tiers @regression', async ({
     page,
     request,
   }) => {
@@ -301,7 +301,7 @@ test.describe('M3 Login', () => {
     expect(s.sessionUser).toBeNull();
   });
 
-  test('TC-LGN-18: Backend issues a 1-day JWT when rememberMe=false', async ({ request }) => {
+  test('TC-LGN-18: Backend issues a 1-day JWT when rememberMe=false @regression', async ({ request }) => {
     const u = users.primary();
     await apiSignup(request, u);
 
@@ -317,7 +317,7 @@ test.describe('M3 Login', () => {
     expect(ttl).toBeLessThanOrEqual(ONE_DAY_S + 5);
   });
 
-  test('TC-LGN-19: Backend issues a 30-day JWT when rememberMe=true', async ({ request }) => {
+  test('TC-LGN-19: Backend issues a 30-day JWT when rememberMe=true @smoke', async ({ request }) => {
     const u = users.primary();
     await apiSignup(request, u);
 
@@ -333,7 +333,7 @@ test.describe('M3 Login', () => {
     expect(ttl).toBeLessThanOrEqual(THIRTY_DAYS_S + 5);
   });
 
-  test('TC-LGN-20: Omitting rememberMe defaults to the short (1-day) JWT', async ({ request }) => {
+  test('TC-LGN-20: Omitting rememberMe defaults to the short (1-day) JWT @regression', async ({ request }) => {
     const u = users.primary();
     await apiSignup(request, u);
 
@@ -349,7 +349,7 @@ test.describe('M3 Login', () => {
     expect(ttl).toBeLessThanOrEqual(ONE_DAY_S + 5);
   });
 
-  test('TC-LGN-21: Truthy non-boolean rememberMe is coerced to long TTL', async ({ request }) => {
+  test('TC-LGN-21: Truthy non-boolean rememberMe is coerced to long TTL @regression', async ({ request }) => {
     const u = users.primary();
     await apiSignup(request, u);
 
@@ -362,7 +362,7 @@ test.describe('M3 Login', () => {
     expect(ttl).toBeGreaterThanOrEqual(THIRTY_DAYS_S - 5);
   });
 
-  test('TC-LGN-22: Wrong password with Remember me ticked still rejects login', async ({
+  test('TC-LGN-22: Wrong password with Remember me ticked still rejects login @smoke', async ({
     page,
     request,
   }) => {

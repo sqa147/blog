@@ -14,7 +14,7 @@ const {
 } = require('../helpers/auth');
 
 test.describe('M7 New Post', () => {
-  test('TC-CRT-01: Author publishes a new post with valid details', async ({ page, request }) => {
+  test('TC-CRT-01: Author publishes a new post with valid details @smoke', async ({ page, request }) => {
     const u = users.primary();
     await ensureSignedIn(page, request, u);
     const create = new CreatePostPage(page);
@@ -36,7 +36,7 @@ test.describe('M7 New Post', () => {
     });
   });
 
-  test('TC-CRT-02: Title cannot be left empty', async ({ page, request }) => {
+  test('TC-CRT-02: Title cannot be left empty @regression', async ({ page, request }) => {
     await ensureSignedIn(page, request, users.primary());
     const create = new CreatePostPage(page);
 
@@ -53,7 +53,7 @@ test.describe('M7 New Post', () => {
     });
   });
 
-  test('TC-CRT-03: Content cannot be left empty', async ({ page, request }) => {
+  test('TC-CRT-03: Content cannot be left empty @regression', async ({ page, request }) => {
     await ensureSignedIn(page, request, users.primary());
     const create = new CreatePostPage(page);
 
@@ -70,7 +70,7 @@ test.describe('M7 New Post', () => {
     });
   });
 
-  test('TC-CRT-04: Validation message shown when title or content is missing', async ({ request }) => {
+  test('TC-CRT-04: Validation message shown when title or content is missing @regression', async ({ request }) => {
     const u = users.primary();
     const { token } = await apiSignup(request, u);
     console.log('[TC-CRT-04] empty body to posts');
@@ -83,7 +83,7 @@ test.describe('M7 New Post', () => {
     expect((await res.json()).error).toBe('title and content are required');
   });
 
-  test('TC-CRT-05: Title containing only spaces is treated as empty', async ({ page, request }) => {
+  test('TC-CRT-05: Title containing only spaces is treated as empty @regression', async ({ page, request }) => {
     // The server only checks `!title`; the client trims before sending, so the
     // user-visible behavior comes from submitting through the UI.
     await ensureSignedIn(page, request, users.primary());
@@ -103,7 +103,7 @@ test.describe('M7 New Post', () => {
     });
   });
 
-  test('TC-CRT-06: Title with exactly 200 characters is accepted', async ({ page, request }) => {
+  test('TC-CRT-06: Title with exactly 200 characters is accepted @regression', async ({ page, request }) => {
     await ensureSignedIn(page, request, users.primary());
     const create = new CreatePostPage(page);
     const detail = new PostDetailPage(page);
@@ -122,7 +122,7 @@ test.describe('M7 New Post', () => {
     });
   });
 
-  test('TC-CRT-07: Title field stops accepting input after 200 characters', async ({ page, request }) => {
+  test('TC-CRT-07: Title field stops accepting input after 200 characters @regression', async ({ page, request }) => {
     await ensureSignedIn(page, request, users.primary());
     const create = new CreatePostPage(page);
     await create.goto();
@@ -140,7 +140,7 @@ test.describe('M7 New Post', () => {
     });
   });
 
-  test('TC-CRT-08: Visitor is redirected to Login when opening the New Post page', async ({ page }) => {
+  test('TC-CRT-08: Visitor is redirected to Login when opening the New Post page @smoke', async ({ page }) => {
     const login = new LoginPage(page);
 
     await test.step('Open New Post as a visitor', async () => {
@@ -154,7 +154,7 @@ test.describe('M7 New Post', () => {
     });
   });
 
-  test('TC-CRT-09: User without a valid session is sent to Login when opening New Post', async ({ page }) => {
+  test('TC-CRT-09: User without a valid session is sent to Login when opening New Post @regression', async ({ page }) => {
     const login = new LoginPage(page);
 
     await test.step('Clear session and open New Post', async () => {
@@ -169,7 +169,7 @@ test.describe('M7 New Post', () => {
     });
   });
 
-  test('TC-CRT-10: Expired session shows an error and returns the user to Login', async ({ page }) => {
+  test('TC-CRT-10: Expired session shows an error and returns the user to Login @regression', async ({ page }) => {
     await setTamperedSession(page, 'ali.khan');
     const create = new CreatePostPage(page);
     const login = new LoginPage(page);
@@ -188,7 +188,7 @@ test.describe('M7 New Post', () => {
     });
   });
 
-  test('TC-CRT-11: Title and content are saved without leading or trailing spaces', async ({ page, request }) => {
+  test('TC-CRT-11: Title and content are saved without leading or trailing spaces @regression', async ({ page, request }) => {
     await ensureSignedIn(page, request, users.primary());
     const create = new CreatePostPage(page);
     const detail = new PostDetailPage(page);

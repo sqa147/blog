@@ -11,7 +11,7 @@ const { apiSignup, ensureSignedIn } = require('../helpers/auth');
 const { apiCreatePost } = require('../helpers/posts');
 
 test.describe('M1 Top Navigation', () => {
-  test('TC-NAV-01: Visitor sees Login and Sign Up options in the top menu', async ({ page }) => {
+  test('TC-NAV-01: Visitor sees Login and Sign Up options in the top menu @smoke', async ({ page }) => {
     const nav = new NavBar(page);
     const home = new HomePage(page);
 
@@ -28,7 +28,7 @@ test.describe('M1 Top Navigation', () => {
     });
   });
 
-  test('TC-NAV-02: Logged-in user sees New Post, greeting, and Logout', async ({ page, request }) => {
+  test('TC-NAV-02: Logged-in user sees New Post, greeting, and Logout @smoke', async ({ page, request }) => {
     const u = users.primary();
     const nav = new NavBar(page);
     const home = new HomePage(page);
@@ -46,7 +46,7 @@ test.describe('M1 Top Navigation', () => {
     });
   });
 
-  test('TC-NAV-03: Username with special characters is shown safely in the greeting', async ({ page }) => {
+  test('TC-NAV-03: Username with special characters is shown safely in the greeting @regression', async ({ page }) => {
     const stamp = ts();
     const trickyUser = {
       username: `Ali<${stamp}>`.slice(0, 30),
@@ -72,7 +72,7 @@ test.describe('M1 Top Navigation', () => {
     });
   });
 
-  test('TC-NAV-04: User returns to the home page from the New Post page using the logo', async ({ page, request }) => {
+  test('TC-NAV-04: User returns to the home page from the New Post page using the logo @regression', async ({ page, request }) => {
     await ensureSignedIn(page, request, users.primary());
     const create = new CreatePostPage(page);
     const nav = new NavBar(page);
@@ -91,7 +91,7 @@ test.describe('M1 Top Navigation', () => {
     });
   });
 
-  test('TC-NAV-05: User returns to the home page from a post detail page using the logo', async ({ page, request }) => {
+  test('TC-NAV-05: User returns to the home page from a post detail page using the logo @regression', async ({ page, request }) => {
     const u = users.primary();
     const { token, user } = await apiSignup(request, u);
     const post = await apiCreatePost(request, token, { title: `Welcome ${ts()}`, content: 'Hello world' });
@@ -112,7 +112,7 @@ test.describe('M1 Top Navigation', () => {
     });
   });
 
-  test('TC-NAV-06: Logout button is hidden when the user is not logged in', async ({ page }) => {
+  test('TC-NAV-06: Logout button is hidden when the user is not logged in @regression', async ({ page }) => {
     const nav = new NavBar(page);
     for (const path of ['/', '/signup.html', '/login.html']) {
       await test.step(`Verify visitor view on ${path}`, async () => {

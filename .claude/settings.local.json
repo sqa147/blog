@@ -4,7 +4,9 @@
       "Bash(npm install *)",
       "Bash(python -m pip install --quiet openpyxl)",
       "Bash(npx playwright *)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(ffprobe -v error -show_entries stream=width,height,duration,codec_name -show_entries format=duration -of default=nw=1 \"/c/Users/ACE/Desktop/blogging/demo-output/remember-me-side-by-side.mp4\")",
+      "Bash(ffmpeg -y -ss 5 -i demo-output/remember-me-side-by-side.mp4 -frames:v 1 -update 1 demo-output/preview.png)"
     ]
   }
 }

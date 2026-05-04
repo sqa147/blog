@@ -1,12 +1,26 @@
 // M3 — Login
-// Covers TC-LGN-01..10.
+// Covers TC-LGN-01..22 (TC-LGN-11..22 cover the Remember me checkbox,
+// added with PR de4575a).
 const { test, expect } = require('@playwright/test');
+const jwt = require('jsonwebtoken');
 const { LoginPage } = require('../pages/LoginPage');
 const { SignupPage } = require('../pages/SignupPage');
 const { NavBar } = require('../pages/NavBar');
 const { HomePage } = require('../pages/HomePage');
 const { users } = require('../data/testData');
 const { apiSignup, ensureSignedIn } = require('../helpers/auth');
+
+const ONE_DAY_S = 24 * 60 * 60;
+const THIRTY_DAYS_S = 30 * 24 * 60 * 60;
+
+async function readTokenStorage(page) {
+  return page.evaluate(() => ({
+    local: localStorage.getItem('token'),
+    session: sessionStorage.getItem('token'),
+    localUser: localStorage.getItem('user'),
+    sessionUser: sessionStorage.getItem('user'),
+  }));
+}
 
 test.describe('M3 Login', () => {
   test('TC-LGN-01: User logs in with correct email and password', async ({ page, request }) => {
@@ -165,5 +179,209 @@ test.describe('M3 Login', () => {
     await test.step('Sign Up page is shown', async () => {
       await expect(signup.heading).toBeVisible();
     });
+  });
+
+  // ── Remember me (PR de4575a) ─────────────────────────────────────────
+  // UI presence/state, client-side storage tier, JWT TTL on the backend,
+  // and credential validation regression.
+  test('TC-LGN-11: Remember me checkbox is visible on the Login page', async ({ page }) => {
+    const login = new LoginPage(page);
+    await login.goto();
+
+    await expect(login.rememberMe).toBeVisible();
+    await expect(login.rememberMeRow).toContainText('Remember me');
+  });
+
+  test('TC-LGN-12: Remember me checkbox is unchecked by default', async ({ page }) => {
+    const login = new LoginPage(page);
+    await login.goto();
+
+    await expect(login.rememberMe).not.toBeChecked();
+  });
+
+  test('TC-LGN-13: Clicking the row toggles the Remember me checkbox via its <label>', async ({ page }) => {
+    const login = new LoginPage(page);
+    await login.goto();
+
+    await login.rememberMeRow.click();
+    await expect(login.rememberMe).toBeChecked();
+    await login.rememberMeRow.click();
+    await expect(login.rememberMe).not.toBeChecked();
+  });
+
+  test('TC-LGN-14: Login WITHOUT Remember me stores token in sessionStorage only', async ({
+    page,
+    request,
+  }) => {
+    const u = users.primary();
+    await apiSignup(request, u);
+    const login = new LoginPage(page);
+    const home = new HomePage(page);
+
+    await login.goto();
+    await login.fillAndSubmit({ email: u.email, password: u.password, rememberMe: false });
+    await page.waitForURL((url) => url.pathname === '/');
+    await expect(home.heading).toBeVisible();
+
+    const s = await readTokenStorage(page);
+    expect(s.session).toBeTruthy();
+    expect(s.local).toBeNull();
+    expect(s.sessionUser).toContain(u.username);
+    expect(s.localUser).toBeNull();
+  });
+
+  test('TC-LGN-15: Login WITH Remember me stores token in localStorage only', async ({
+    page,
+    request,
+  }) => {
+    const u = users.primary();
+    await apiSignup(request, u);
+    const login = new LoginPage(page);
+    const home = new HomePage(page);
+
+    await login.goto();
+    await login.fillAndSubmit({ email: u.email, password: u.password, rememberMe: true });
+    await page.waitForURL((url) => url.pathname === '/');
+    await expect(home.heading).toBeVisible();
+
+    const s = await readTokenStorage(page);
+    expect(s.local).toBeTruthy();
+    expect(s.session).toBeNull();
+    expect(s.localUser).toContain(u.username);
+    expect(s.sessionUser).toBeNull();
+  });
+
+  test('TC-LGN-16: A subsequent Remember-me login overwrites a prior session login', async ({
+    page,
+    request,
+  }) => {
+    const u = users.primary();
+    await apiSignup(request, u);
+    const login = new LoginPage(page);
+    const nav = new NavBar(page);
+
+    await login.goto();
+    await login.fillAndSubmit({ email: u.email, password: u.password, rememberMe: false });
+    await page.waitForURL((url) => url.pathname === '/');
+    let s = await readTokenStorage(page);
+    expect(s.session).toBeTruthy();
+    expect(s.local).toBeNull();
+
+    await nav.logoutBtn.click();
+    await expect(nav.loginLink).toBeVisible();
+    await login.goto();
+    await login.fillAndSubmit({ email: u.email, password: u.password, rememberMe: true });
+    await page.waitForURL((url) => url.pathname === '/');
+
+    s = await readTokenStorage(page);
+    expect(s.local).toBeTruthy();
+    expect(s.session).toBeNull();
+  });
+
+  test('TC-LGN-17: Logout clears the token from both storage tiers', async ({
+    page,
+    request,
+  }) => {
+    const u = users.primary();
+    await apiSignup(request, u);
+    const login = new LoginPage(page);
+    const nav = new NavBar(page);
+
+    await login.goto();
+    await login.fillAndSubmit({ email: u.email, password: u.password, rememberMe: true });
+    await page.waitForURL((url) => url.pathname === '/');
+
+    await nav.logoutBtn.click();
+    await expect(nav.loginLink).toBeVisible();
+
+    const s = await readTokenStorage(page);
+    expect(s.local).toBeNull();
+    expect(s.session).toBeNull();
+    expect(s.localUser).toBeNull();
+    expect(s.sessionUser).toBeNull();
+  });
+
+  test('TC-LGN-18: Backend issues a 1-day JWT when rememberMe=false', async ({ request }) => {
+    const u = users.primary();
+    await apiSignup(request, u);
+
+    const res = await request.post('/api/auth/login', {
+      data: { email: u.email, password: u.password, rememberMe: false },
+    });
+    expect(res.ok()).toBeTruthy();
+    const { token } = await res.json();
+    const decoded = jwt.decode(token);
+    const ttl = decoded.exp - decoded.iat;
+
+    expect(ttl).toBeGreaterThanOrEqual(ONE_DAY_S - 5);
+    expect(ttl).toBeLessThanOrEqual(ONE_DAY_S + 5);
+  });
+
+  test('TC-LGN-19: Backend issues a 30-day JWT when rememberMe=true', async ({ request }) => {
+    const u = users.primary();
+    await apiSignup(request, u);
+
+    const res = await request.post('/api/auth/login', {
+      data: { email: u.email, password: u.password, rememberMe: true },
+    });
+    expect(res.ok()).toBeTruthy();
+    const { token } = await res.json();
+    const decoded = jwt.decode(token);
+    const ttl = decoded.exp - decoded.iat;
+
+    expect(ttl).toBeGreaterThanOrEqual(THIRTY_DAYS_S - 5);
+    expect(ttl).toBeLessThanOrEqual(THIRTY_DAYS_S + 5);
+  });
+
+  test('TC-LGN-20: Omitting rememberMe defaults to the short (1-day) JWT', async ({ request }) => {
+    const u = users.primary();
+    await apiSignup(request, u);
+
+    const res = await request.post('/api/auth/login', {
+      data: { email: u.email, password: u.password },
+    });
+    expect(res.ok()).toBeTruthy();
+    const { token } = await res.json();
+    const decoded = jwt.decode(token);
+    const ttl = decoded.exp - decoded.iat;
+
+    expect(ttl).toBeGreaterThanOrEqual(ONE_DAY_S - 5);
+    expect(ttl).toBeLessThanOrEqual(ONE_DAY_S + 5);
+  });
+
+  test('TC-LGN-21: Truthy non-boolean rememberMe is coerced to long TTL', async ({ request }) => {
+    const u = users.primary();
+    await apiSignup(request, u);
+
+    const res = await request.post('/api/auth/login', {
+      data: { email: u.email, password: u.password, rememberMe: 'yes' },
+    });
+    expect(res.ok()).toBeTruthy();
+    const { token } = await res.json();
+    const ttl = jwt.decode(token).exp - jwt.decode(token).iat;
+    expect(ttl).toBeGreaterThanOrEqual(THIRTY_DAYS_S - 5);
+  });
+
+  test('TC-LGN-22: Wrong password with Remember me ticked still rejects login', async ({
+    page,
+    request,
+  }) => {
+    const u = users.primary();
+    await apiSignup(request, u);
+    const login = new LoginPage(page);
+
+    await login.goto();
+    await login.fillAndSubmit({
+      email: u.email,
+      password: 'WrongPass1',
+      rememberMe: true,
+    });
+
+    await expect(login.error).toContainText(/Invalid email or password/i);
+    expect(new URL(page.url()).pathname).toBe('/login.html');
+
+    const s = await readTokenStorage(page);
+    expect(s.local).toBeNull();
+    expect(s.session).toBeNull();
   });
 });

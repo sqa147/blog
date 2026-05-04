@@ -173,3 +173,37 @@ button.danger:hover { background: var(--danger); color: white; }
   margin: 0;
   cursor: pointer;
 }
+
+.comments-section {
+  margin-top: 2rem;
+}
+
+.comments-section h2 {
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+}
+
+.comment-form textarea {
+  min-height: 90px;
+}
+
+.comment-login-prompt {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.comment-login-prompt a { color: var(--accent); }
+
+.comment-card {
+  padding: 1rem 1.25rem;
+}
+
+.comment-content {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.comment-delete {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+}

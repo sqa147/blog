@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npm install *)",
       "Bash(python -m pip install --quiet openpyxl)",
-      "Bash(npx playwright *)"
+      "Bash(npx playwright *)",
+      "Bash(git *)"
     ]
   }
 }

@@ -2,15 +2,15 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
-const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config');
+const { JWT_SECRET, JWT_EXPIRES_IN, JWT_REMEMBER_ME_EXPIRES_IN } = require('../config');
 
 const router = express.Router();
 
-function signToken(user) {
+function signToken(user, rememberMe = false) {
   return jwt.sign(
     { sub: user.id, username: user.username },
     JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
+    { expiresIn: rememberMe ? JWT_REMEMBER_ME_EXPIRES_IN : JWT_EXPIRES_IN }
   );
 }
 
@@ -40,7 +40,7 @@ router.post('/signup', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-  const { email, password } = req.body || {};
+  const { email, password, rememberMe } = req.body || {};
   if (!email || !password) {
     return res.status(400).json({ error: 'email and password are required' });
   }
@@ -51,7 +51,7 @@ router.post('/login', (req, res) => {
   }
 
   const user = { id: row.id, username: row.username, email: row.email };
-  const token = signToken(user);
+  const token = signToken(user, Boolean(rememberMe));
   res.json({ token, user });
 });
 

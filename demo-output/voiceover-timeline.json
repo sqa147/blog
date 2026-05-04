@@ -1,10 +1,82 @@
 {
-  "startedAt": "2026-05-02T11:52:01.671Z",
+  "startedAt": "2026-05-04T07:54:56.041Z",
   "entries": [
     {
-      "time": 0.617,
+      "time": 0.926,
       "text": "Welcome to MiniBlog, a simple platform to read and publish blog posts."
+    },
+    {
+      "time": 6.692,
+      "text": "Let us create a new account by clicking Sign up."
+    },
+    {
+      "time": 11.105,
+      "text": "We pick a username."
+    },
+    {
+      "time": 17.364,
+      "text": "We add an email address."
+    },
+    {
+      "time": 26.63,
+      "text": "And we choose a secure password."
+    },
+    {
+      "time": 31.112,
+      "text": "Now we sign up. The app logs us in automatically."
+    },
+    {
+      "time": 36.4,
+      "text": "To demo the login screen, let us first log out of the new account."
+    },
+    {
+      "time": 43.016,
+      "text": "Now we click Login to sign back into the same account."
+    },
+    {
+      "time": 47.802,
+      "text": "We enter the email we just signed up with."
+    },
+    {
+      "time": 57.081,
+      "text": "And the same password."
+    },
+    {
+      "time": 61.576,
+      "text": "We hit Log in, and we are right back into our account."
+    },
+    {
+      "time": 67.627,
+      "text": "We click New Post to start writing."
+    },
+    {
+      "time": 70.853,
+      "text": "We give the post a clear title."
+    },
+    {
+      "time": 80.793,
+      "text": "And we write a short message for our readers."
+    },
+    {
+      "time": 103.321,
+      "text": "We hit Publish, and the post is live right away."
+    },
+    {
+      "time": 107.723,
+      "text": "Here is the published post with the title, the author and the full content."
+    },
+    {
+      "time": 114.459,
+      "text": "Going back to the homepage, the new post sits at the top."
+    },
+    {
+      "time": 120.71,
+      "text": "Anyone can click a post to read the full version."
+    },
+    {
+      "time": 125.106,
+      "text": "Because we wrote this post, we can also delete it."
     }
   ],
-  "endedAt": "2026-05-02T11:52:07.412Z"
+  "endedAt": "2026-05-04T07:57:01.703Z"
 }

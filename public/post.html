@@ -15,6 +15,11 @@
   <main>
     <div id="error" class="error"></div>
     <div id="post"></div>
+    <section id="comments-section" class="comments-section" style="display:none;">
+      <h2 id="comments-heading">Comments</h2>
+      <div id="comment-form-wrap"></div>
+      <div id="comments-list"></div>
+    </section>
   </main>
 
   <script src="/js/app.js"></script>
@@ -53,10 +58,92 @@
             }
           });
         }
+        document.getElementById('comments-section').style.display = 'block';
+        renderCommentForm();
+        await loadComments();
       } catch (err) {
         container.innerHTML = `<div class="empty">Failed to load post: ${escapeHtml(err.message)}</div>`;
       }
     }
+
+    function renderCommentForm() {
+      const wrap = document.getElementById('comment-form-wrap');
+      if (!Auth.isLoggedIn()) {
+        wrap.innerHTML = `
+          <div class="card comment-login-prompt">
+            <a href="/login.html">Log in</a> to leave a comment.
+          </div>
+        `;
+        return;
+      }
+      wrap.innerHTML = `
+        <form id="comment-form" class="card comment-form">
+          <label for="comment-content">Add a comment</label>
+          <textarea id="comment-content" required maxlength="2000" placeholder="Write your comment…"></textarea>
+          <button type="submit" class="primary">Post comment</button>
+        </form>
+      `;
+      document.getElementById('comment-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearError();
+        const textarea = document.getElementById('comment-content');
+        const content = textarea.value.trim();
+        if (!content) return;
+        try {
+          await api(`/api/posts/${id}/comments`, {
+            method: 'POST',
+            auth: true,
+            body: { content },
+          });
+          textarea.value = '';
+          await loadComments();
+        } catch (err) {
+          showError(err.message);
+        }
+      });
+    }
+
+    async function loadComments() {
+      const list = document.getElementById('comments-list');
+      const heading = document.getElementById('comments-heading');
+      try {
+        const comments = await api(`/api/posts/${id}/comments`);
+        heading.textContent = `Comments (${comments.length})`;
+        if (comments.length === 0) {
+          list.innerHTML = '<div class="empty">No comments yet. Be the first!</div>';
+          return;
+        }
+        list.innerHTML = comments.map((c) => {
+          const mine = Auth.user && Auth.user.id === c.author_id;
+          return `
+            <div class="card comment-card" data-id="${c.id}">
+              <div class="row-between">
+                <div class="meta">${escapeHtml(c.author_username)} · ${formatDate(c.created_at)}</div>
+                ${mine ? `<button class="danger comment-delete" data-id="${c.id}">Delete</button>` : ''}
+              </div>
+              <div class="post-content comment-content">${escapeHtml(c.content)}</div>
+            </div>
+          `;
+        }).join('');
+        list.querySelectorAll('.comment-delete').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            if (!confirm('Delete this comment?')) return;
+            try {
+              await api(`/api/posts/${id}/comments/${btn.dataset.id}`, {
+                method: 'DELETE',
+                auth: true,
+              });
+              await loadComments();
+            } catch (err) {
+              showError(err.message);
+            }
+          });
+        });
+      } catch (err) {
+        list.innerHTML = `<div class="empty">Failed to load comments: ${escapeHtml(err.message)}</div>`;
+      }
+    }
+
     loadPost();
   </script>
 </body>

@@ -7,7 +7,7 @@ const { apiSignup } = require('../helpers/auth');
 const { apiCreatePost } = require('../helpers/posts');
 
 test.describe('M5 Home / Posts Listing', () => {
-  test('TC-HOM-01: Each post shows title, author, date, and a short preview', async ({ page, request }) => {
+  test('TC-HOM-01: Each post shows title, author, date, and a short preview @smoke', async ({ page, request }) => {
     const u = users.primary();
     const { token, user } = await apiSignup(request, u);
     const post = await apiCreatePost(request, token, {
@@ -30,7 +30,7 @@ test.describe('M5 Home / Posts Listing', () => {
     });
   });
 
-  test('TC-HOM-02: Newest post appears at the top of the list', async ({ page, request }) => {
+  test('TC-HOM-02: Newest post appears at the top of the list @regression', async ({ page, request }) => {
     const u = users.primary();
     const { token } = await apiSignup(request, u);
     const t1 = `First Post ${ts()}`;
@@ -59,7 +59,7 @@ test.describe('M5 Home / Posts Listing', () => {
     });
   });
 
-  test('TC-HOM-03: Empty list shows a friendly message', async ({ page }) => {
+  test('TC-HOM-03: Empty list shows a friendly message @regression', async ({ page }) => {
     const home = new HomePage(page);
 
     await test.step('Mock the posts list to be empty and open home', async () => {
@@ -76,7 +76,7 @@ test.describe('M5 Home / Posts Listing', () => {
     });
   });
 
-  test('TC-HOM-04: Long content is shortened with three dots in the list', async ({ page, request }) => {
+  test('TC-HOM-04: Long content is shortened with three dots in the list @regression', async ({ page, request }) => {
     const u = users.primary();
     const { token } = await apiSignup(request, u);
     const longContent = 'a'.repeat(300);
@@ -98,7 +98,7 @@ test.describe('M5 Home / Posts Listing', () => {
     });
   });
 
-  test('TC-HOM-05: Content of exactly 240 characters is shown without three dots', async ({ page, request }) => {
+  test('TC-HOM-05: Content of exactly 240 characters is shown without three dots @regression', async ({ page, request }) => {
     const u = users.primary();
     const { token } = await apiSignup(request, u);
     const exactContent = 'a'.repeat(240);
@@ -120,7 +120,7 @@ test.describe('M5 Home / Posts Listing', () => {
     });
   });
 
-  test('TC-HOM-06: Title containing HTML-like text is shown as plain text', async ({ page, request }) => {
+  test('TC-HOM-06: Title containing HTML-like text is shown as plain text @regression', async ({ page, request }) => {
     const u = users.primary();
     const { token } = await apiSignup(request, u);
     const title = `<script>alert(1)</script> ${ts()}`;
@@ -145,7 +145,7 @@ test.describe('M5 Home / Posts Listing', () => {
     });
   });
 
-  test('TC-HOM-07: Post date is shown in a human-readable format', async ({ page, request }) => {
+  test('TC-HOM-07: Post date is shown in a human-readable format @regression', async ({ page, request }) => {
     const u = users.primary();
     const { token } = await apiSignup(request, u);
     const post = await apiCreatePost(request, token, {
@@ -165,7 +165,7 @@ test.describe('M5 Home / Posts Listing', () => {
     });
   });
 
-  test('TC-HOM-08: User opens a post detail page by clicking its title', async ({ page, request }) => {
+  test('TC-HOM-08: User opens a post detail page by clicking its title @smoke', async ({ page, request }) => {
     const u = users.primary();
     const { token } = await apiSignup(request, u);
     const post = await apiCreatePost(request, token, { title: `Open me ${ts()}`, content: 'Body' });
@@ -183,7 +183,7 @@ test.describe('M5 Home / Posts Listing', () => {
     });
   });
 
-  test('TC-HOM-09: Clear error message appears when posts cannot be loaded', async ({ page }) => {
+  test('TC-HOM-09: Clear error message appears when posts cannot be loaded @regression', async ({ page }) => {
     const home = new HomePage(page);
 
     await test.step('Mock the posts API to fail and open home', async () => {

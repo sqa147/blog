@@ -1,10 +1,86 @@
 {
-  "startedAt": "2026-05-02T11:52:01.671Z",
+  "startedAt": "2026-05-04T12:52:31.839Z",
   "entries": [
     {
-      "time": 0.617,
+      "time": 0.751,
       "text": "Welcome to MiniBlog, a simple platform to read and publish blog posts."
+    },
+    {
+      "time": 6.518,
+      "text": "Let us create a new account by clicking Sign up."
+    },
+    {
+      "time": 10.91,
+      "text": "We pick a username."
+    },
+    {
+      "time": 17.598,
+      "text": "We add an email address."
+    },
+    {
+      "time": 28.397,
+      "text": "And we choose a secure password."
+    },
+    {
+      "time": 32.724,
+      "text": "Now we sign up. The app logs us in automatically."
+    },
+    {
+      "time": 38.033,
+      "text": "To demo the login screen, let us first log out of the new account."
+    },
+    {
+      "time": 44.668,
+      "text": "Now we click Login to sign back into the same account."
+    },
+    {
+      "time": 49.447,
+      "text": "We enter the email we just signed up with."
+    },
+    {
+      "time": 58.493,
+      "text": "And the same password."
+    },
+    {
+      "time": 63.188,
+      "text": "We hit Log in, and we are right back into our account."
+    },
+    {
+      "time": 69.302,
+      "text": "We click New Post to start writing."
+    },
+    {
+      "time": 72.76,
+      "text": "We give the post a clear title."
+    },
+    {
+      "time": 82.815,
+      "text": "And we write a short message for our readers."
+    },
+    {
+      "time": 105.121,
+      "text": "We hit Publish, and the post is live right away."
+    },
+    {
+      "time": 109.508,
+      "text": "Here is the published post with the title, the author and the full content."
+    },
+    {
+      "time": 116.221,
+      "text": "Going back to the homepage, the new post sits at the top."
+    },
+    {
+      "time": 122.481,
+      "text": "Anyone can click a post to read the full version."
+    },
+    {
+      "time": 126.884,
+      "text": "Because we wrote this post, we can also delete it."
+    },
+    {
+      "time": 131.305,
+      "text": "And just like that, the post is gone from the list."
     }
   ],
-  "endedAt": "2026-05-02T11:52:07.412Z"
+  "endedAt": "2026-05-04T12:54:51.357Z"
 }

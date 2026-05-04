@@ -11,7 +11,7 @@ const { apiSignup, setSession, ensureSignedIn } = require('../helpers/auth');
 const { apiCreatePost } = require('../helpers/posts');
 
 test.describe('M4 Logout', () => {
-  test('TC-LGT-01: User logs out from the home page', async ({ page, request }) => {
+  test('TC-LGT-01: User logs out from the home page @smoke', async ({ page, request }) => {
     const u = users.primary();
     await ensureSignedIn(page, request, u);
     const home = new HomePage(page);
@@ -31,7 +31,7 @@ test.describe('M4 Logout', () => {
     });
   });
 
-  test('TC-LGT-02: User logs out from the New Post page', async ({ page, request }) => {
+  test('TC-LGT-02: User logs out from the New Post page @regression', async ({ page, request }) => {
     await ensureSignedIn(page, request, users.primary());
     const create = new CreatePostPage(page);
     const nav = new NavBar(page);
@@ -48,7 +48,7 @@ test.describe('M4 Logout', () => {
     });
   });
 
-  test('TC-LGT-03: User logs out from a post detail page', async ({ page, request }) => {
+  test('TC-LGT-03: User logs out from a post detail page @regression', async ({ page, request }) => {
     const u = users.primary();
     const { token, user } = await apiSignup(request, u);
     const post = await apiCreatePost(request, token, { title: `Post ${ts()}`, content: 'Body' });
@@ -68,7 +68,7 @@ test.describe('M4 Logout', () => {
     });
   });
 
-  test('TC-LGT-04: Visitor is sent to the Login page when trying to write a post after logout', async ({ page, request }) => {
+  test('TC-LGT-04: Visitor is sent to the Login page when trying to write a post after logout @regression', async ({ page, request }) => {
     await ensureSignedIn(page, request, users.primary());
     const nav = new NavBar(page);
     const login = new LoginPage(page);

@@ -78,6 +78,142 @@ async function installHeadingBanner(page, text, accent) {
   }, { text, accent });
 }
 
+test.describe('MiniBlog · Delete post · before / after', () => {
+  // BEFORE: working delete — the home page no longer lists the post.
+  // (Server is buggy in this PR, so we mock the home list to mimic the
+  // pre-PR behaviour for the recording. Same trick the comments demo uses
+  // with #comments-section.)
+  test('before — delete post (working)', async ({ page, baseURL }) => {
+    test.setTimeout(180_000);
+    await setupDemoOverlay(page);
+    await installHeadingBanner(page, 'BEFORE — Delete post removes it', '#16a34a');
+
+    const user = uniqueUser('before_d');
+    await preCreateUser(baseURL, user);
+
+    const ctx = await request.newContext({ baseURL });
+    const loginRes = await ctx.post('/api/auth/login', {
+      data: { email: user.email, password: user.password },
+    });
+    const { token, user: u } = await loginRes.json();
+    const postRes = await ctx.post('/api/posts', {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { title: 'Delete me — working build', content: 'Should be gone after delete.' },
+    });
+    const post = await postRes.json();
+    await ctx.dispose();
+
+    await page.addInitScript(({ t, u }) => {
+      window.localStorage.setItem('token', t);
+      window.localStorage.setItem('user', JSON.stringify(u));
+    }, { t: token, u });
+
+    // Mimic pre-PR backend: after the delete API call, the home list no
+    // longer contains this post. We filter the live list to drop it.
+    let deleted = false;
+    await page.route('**/api/posts/' + post.id, async (route) => {
+      if (route.request().method() === 'DELETE') {
+        deleted = true;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ ok: true }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+    await page.route('**/api/posts', async (route) => {
+      if (route.request().method() !== 'GET') return route.continue();
+      const resp = await route.fetch();
+      const body = await resp.json();
+      const filtered = deleted ? body.filter((p) => p.id !== post.id) : body;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(filtered),
+      });
+    });
+
+    await page.goto(`/post.html?id=${post.id}`);
+    await expect(page.locator('#post h1')).toHaveText('Delete me — working build');
+    await showDemoTitle(page, 'Open the post you want to delete');
+    await waitForDemo(page, 1500);
+
+    const deleteBtn = page.getByRole('button', { name: 'Delete', exact: true });
+    await highlightElement(page, deleteBtn);
+    await showDemoTitle(page, 'Click Delete');
+    await waitForDemo(page, 1200);
+    await clearHighlight(page);
+
+    // Auto-accept the confirm dialog.
+    page.once('dialog', (d) => d.accept());
+    await demoClick(page, deleteBtn, { title: 'Confirm "Delete this post?"' });
+    await page.waitForURL((url) => url.pathname === '/');
+
+    await expect(page.getByRole('heading', { name: 'Latest posts' })).toBeVisible();
+    const card = page.locator('article.card', { hasText: 'Delete me — working build' });
+    await expect(card).toHaveCount(0);
+    await showDemoTitle(page, 'Post is gone from the list ✔');
+    await waitForDemo(page, 2200);
+
+    await hideDemoTitle(page);
+  });
+
+  // AFTER: buggy delete — server returns 200 OK but the row is never removed.
+  // The home page still shows the post.
+  test('after — delete post (bug)', async ({ page, baseURL }) => {
+    test.setTimeout(180_000);
+    await setupDemoOverlay(page);
+    await installHeadingBanner(page, 'AFTER — Delete reports OK but post stays', '#dc2626');
+
+    const user = uniqueUser('after_d');
+    await preCreateUser(baseURL, user);
+
+    const ctx = await request.newContext({ baseURL });
+    const loginRes = await ctx.post('/api/auth/login', {
+      data: { email: user.email, password: user.password },
+    });
+    const { token, user: u } = await loginRes.json();
+    const postRes = await ctx.post('/api/posts', {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { title: 'Delete me — buggy build', content: 'Will look deleted but is not.' },
+    });
+    const post = await postRes.json();
+    await ctx.dispose();
+
+    await page.addInitScript(({ t, u }) => {
+      window.localStorage.setItem('token', t);
+      window.localStorage.setItem('user', JSON.stringify(u));
+    }, { t: token, u });
+
+    await page.goto(`/post.html?id=${post.id}`);
+    await expect(page.locator('#post h1')).toHaveText('Delete me — buggy build');
+    await showDemoTitle(page, 'Open the post you want to delete');
+    await waitForDemo(page, 1500);
+
+    const deleteBtn = page.getByRole('button', { name: 'Delete', exact: true });
+    await highlightElement(page, deleteBtn);
+    await showDemoTitle(page, 'Click Delete');
+    await waitForDemo(page, 1200);
+    await clearHighlight(page);
+
+    page.once('dialog', (d) => d.accept());
+    await demoClick(page, deleteBtn, { title: 'Confirm "Delete this post?"' });
+    await page.waitForURL((url) => url.pathname === '/');
+
+    await expect(page.getByRole('heading', { name: 'Latest posts' })).toBeVisible();
+    const card = page.locator('article.card', { hasText: 'Delete me — buggy build' });
+    await expect(card.first()).toBeVisible();
+    await highlightElement(page, card.first());
+    await showDemoTitle(page, 'Bug: post is still in the list ✘');
+    await waitForDemo(page, 2400);
+    await clearHighlight(page);
+
+    await hideDemoTitle(page);
+  });
+});
+
 test.describe('MiniBlog · Comments · before / after', () => {
   test('before — old post detail (no comments)', async ({ page, baseURL }) => {
     test.setTimeout(180_000);

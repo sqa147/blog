@@ -987,6 +987,10 @@ MODULES = [
              "Deleting an unknown post shows a not-found message",
              "Verify the not-found behavior on delete.",
              "Negative, Edge"],
+            ["TS-DEL-05", "Delete Post",
+             "Delete API actually removes the post from the database",
+             "Verify that a successful delete is reflected in the listing and detail endpoints, not just in the API response.",
+             "Regression, Critical, Bug-Guard"],
         ],
         "cases": [
             ["TC-DEL-01", "TS-DEL-01", "Delete Post",
@@ -1052,6 +1056,31 @@ MODULES = [
              "Username: noor.e\nEmail: noor.e@gmail.com\nPassword: Strong#22\nTitle: Soon to be deleted\nContent: Bye",
              "1. Register a new account.\n2. Create a post with the title and content above.\n3. Open the post's detail page and delete it.\n4. Open the home page.\n5. Try to open the deleted post's detail page again.",
              "The post no longer appears on the home page. Opening the deleted post's detail page shows \"Failed to load post: Post not found\"."],
+
+            # ── Delete-post bug-guard (this PR) ─────────────────────────
+            ["TC-DEL-09", "TS-DEL-05", "Delete Post",
+             "After a successful delete, the post no longer appears in the public list",
+             "High", "Smoke", "Regression",
+             "The user is logged in as the post's author and the post exists.",
+             "Title: Delete me — bug-guard\nContent: Should be gone after delete.",
+             "1. While logged in, send the delete request for the user's post.\n2. Confirm the request returns a successful response.\n3. Refresh the home page (or fetch the public posts list).",
+             "The deleted post is not present in the public posts list. The deleted post's detail page shows \"Post not found\". Notes: this case guards against the regression where the delete API returns OK but the row is never removed."],
+
+            ["TC-DEL-10", "TS-DEL-05", "Delete Post",
+             "After a successful delete, opening the post directly shows a not-found message",
+             "High", "Regression", "Negative",
+             "The user has just deleted their own post.",
+             "The deleted post's reference.",
+             "1. After deleting a post, open its detail page directly using its reference.",
+             "The page shows \"Failed to load post: Post not found\". The post can no longer be retrieved."],
+
+            ["TC-DEL-11", "TS-DEL-05", "Delete Post",
+             "Re-deleting the same post a second time is rejected as not found",
+             "Medium", "Regression", "Edge",
+             "The user has already deleted a post.",
+             "The previously-deleted post's reference.",
+             "1. Send a second delete request for the same post the user just deleted.",
+             "The second attempt is rejected with the message \"Post not found\". Notes: protects against the bug where the row was never actually removed, in which case a second delete would still report success."],
         ],
     },
 

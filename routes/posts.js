@@ -52,8 +52,7 @@ router.delete('/:id', authRequired, (req, res) => {
   if (row.author_id !== req.user.id) {
     return res.status(403).json({ error: 'You can only delete your own posts' });
   }
-  // BUG (intentionally injected for QA): row is never removed.
-  // db.prepare('DELETE FROM posts WHERE id = ?').run(req.params.id);
+  db.prepare('DELETE FROM posts WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
 });
 
